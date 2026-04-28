@@ -81,3 +81,16 @@ test "module level get one-liner" {
     const body = res.text();
     try std.testing.expect(body.len > 0);
 }
+
+test "pokemon api json parsing" {
+    const Pokemon = struct {
+        name: []const u8,
+        weight: i32,
+    };
+    const res = try gil.get("https://pokeapi.co/api/v2/pokemon/pikachu", .{});
+    try std.testing.expect(res.ok);
+    
+    const pikachu = try res.json(Pokemon);
+    try std.testing.expectEqualStrings("pikachu", pikachu.name);
+    try std.testing.expect(pikachu.weight > 0);
+}

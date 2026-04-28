@@ -19,6 +19,20 @@ pub const Session = struct {
         self.arena.deinit();
     }
 
+    fn readBody(allocator: std.mem.Allocator, response: *std.http.Client.Response) ![]const u8 {
+        const decompress_buffer: []u8 = switch (response.head.content_encoding) {
+            .identity => &.{},
+            .zstd => try allocator.alloc(u8, std.compress.zstd.default_window_len),
+            .deflate, .gzip => try allocator.alloc(u8, std.compress.flate.max_window_len),
+            .compress => return error.UnsupportedCompressionMethod,
+        };
+
+        var transfer_buffer: [8192]u8 = undefined;
+        var decompress: std.http.Decompress = undefined;
+        var reader = response.readerDecompressing(&transfer_buffer, &decompress, decompress_buffer);
+        return try reader.allocRemaining(allocator, .unlimited);
+    }
+
     pub fn get(self: *Session, url: []const u8, options: anytype) !Response {
         const uri = try std.Uri.parse(url);
         const allocator = self.arena.allocator();
@@ -50,8 +64,7 @@ pub const Session = struct {
             });
         }
 
-        var reader = response.reader(&.{});
-        const body = try reader.allocRemaining(allocator, .unlimited);
+        const body = try readBody(allocator, &response);
         const ok = @intFromEnum(response.head.status) >= 200 and @intFromEnum(response.head.status) < 300;
 
         return Response{
@@ -100,8 +113,7 @@ pub const Session = struct {
             });
         }
 
-        var reader = response.reader(&.{});
-        const body = try reader.allocRemaining(allocator, .unlimited);
+        const body = try readBody(allocator, &response);
         const ok = @intFromEnum(response.head.status) >= 200 and @intFromEnum(response.head.status) < 300;
 
         return Response{
