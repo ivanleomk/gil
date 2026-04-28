@@ -73,3 +73,11 @@ test "post request with json payload" {
     try std.testing.expectEqualStrings("foo", parsed.json.title);
     try std.testing.expectEqualStrings("bar", parsed.json.body);
 }
+
+test "module level get one-liner" {
+    const res = try gil.get("https://httpbin.org/get", .{});
+    try std.testing.expect(res.ok);
+    try std.testing.expectEqual(200, res.status);
+    const body = res.text();
+    try std.testing.expect(body.len > 0);
+}

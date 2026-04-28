@@ -151,7 +151,24 @@ pub const Response = struct {
 };
 
 // Module-level convenience functions mirroring httpx.get()
-// This requires a global session or hidden allocations, which plan.md mentions might violate strict zig compliance.
-// But plan.md specifies them: "The primary entry point is the module-level convenience functions, mirroring httpx.get()."
-// We would need a threadlocal or global allocator and Io.
-// For now, let's keep it to Session as we'll need to figure out the global state later.
+var global_session: ?Session = null;
+var global_io: ?std.Io.Threaded = null;
+
+fn getGlobalSession() *Session {
+    if (global_session == null) {
+        const gpa = std.heap.page_allocator;
+        global_io = std.Io.Threaded.init(gpa, .{});
+        global_session = Session.init(gpa, global_io.?.io());
+    }
+    return &global_session.?;
+}
+
+pub fn get(url: []const u8, options: anytype) !Response {
+    const session = getGlobalSession();
+    return session.get(url, options);
+}
+
+pub fn post(url: []const u8, options: anytype) !Response {
+    const session = getGlobalSession();
+    return session.post(url, options);
+}
