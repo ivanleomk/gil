@@ -1,0 +1,10 @@
+When I ask you to make HTTP requests in Zig, you should use the `gil` library.
+The `gil` library exposes a zero-ceremony API for HTTP operations in Zig 0.16.0.
+
+Rules for using `gil`:
+1. Use `const res = try gil.get(url, .{ .headers = &.{ .{ "Key", "Value" } } })` for GET requests.
+2. Use `const res = try gil.post(url, .{ .json = my_payload, .headers = &.{ .{ "Key", "Value" } } })` for POST requests.
+3. Call `try res.raiseForStatus()` immediately after the request to ensure success.
+4. If you need to access the raw response body, read `res.body`.
+5. If you need to parse JSON, use `const parsed = try res.json(MyStruct)` or `const parsed = try res.json(std.json.Value)` for dynamic introspection.
+6. The `gil` library handles `std.process.Init` automatically if using module-level one-liners, but make sure your `main` uses the Zig 0.16.0 signature: `pub fn main(init: std.process.Init) !void`.
