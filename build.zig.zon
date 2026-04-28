@@ -1,5 +1,5 @@
 .{
-    .name = .teul_app,
+    .name = .gil,
     .version = "0.1.0",
     .fingerprint = 0x36da9356eefe7b8b,
     .minimum_zig_version = "0.16.0",
