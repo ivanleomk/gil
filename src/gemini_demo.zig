@@ -13,13 +13,10 @@ pub fn main(init: std.process.Init) !void {
     std.debug.print("Sending request to Gemini 2.5 Flash...\n", .{});
 
     // Make the POST request
-    const res = try gil.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", .{
-        .json = payload,
-        .headers = &.{
-            .{ "Content-Type", "application/json" },
-            .{ "x-goog-api-key", api_key },
-        }
-    });
+    const res = try gil.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent", .{ .json = payload, .headers = &.{
+        .{ "Content-Type", "application/json" },
+        .{ "x-goog-api-key", api_key },
+    } });
 
     try res.raiseForStatus();
 
@@ -39,4 +36,11 @@ pub fn main(init: std.process.Init) !void {
     } else {
         std.debug.print("Unexpected response: {s}\n", .{res.body});
     }
+
+    // Write the raw response to a file
+    try std.Io.Dir.cwd().writeFile(init.io, .{
+        .sub_path = "response.json",
+        .data = res.body,
+    });
+    std.debug.print("\n📝 Raw JSON response saved to response.json!\n", .{});
 }
