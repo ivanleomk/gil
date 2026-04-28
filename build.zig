@@ -10,18 +10,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // Add gemini demo executable
-    const exe = b.addExecutable(.{
-        .name = "gemini_demo",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/gemini_demo.zig"),
-            .target = target,
-            .optimize = optimize,
-        }),
-    });
-    exe.root_module.addImport("gil", gil_mod);
-    b.installArtifact(exe);
-
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const lib_unit_tests = b.addTest(.{
