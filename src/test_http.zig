@@ -26,7 +26,7 @@ test "get request with custom headers" {
 
     const res = try session.get("https://httpbin.org/headers", .{
         .headers = &.{
-            .{ .name = "X-My-Custom-Header", .value = "FooBar" }
+            .{ "X-My-Custom-Header", "FooBar" }
         }
     });
     
@@ -54,7 +54,7 @@ test "post request with json payload" {
     const res = try session.post("https://httpbin.org/post", .{
         .json = payload,
         .headers = &.{
-            .{ .name = "Content-Type", .value = "application/json" }
+            .{ "Content-Type", "application/json" }
         }
     });
     

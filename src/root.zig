@@ -40,7 +40,12 @@ pub const Session = struct {
         var extra_headers_list = std.ArrayList(std.http.Header).empty;
         if (@hasField(@TypeOf(options), "headers")) {
             inline for (options.headers) |h| {
-                try extra_headers_list.append(allocator, .{ .name = h.name, .value = h.value });
+                const is_tuple = @typeInfo(@TypeOf(h)) == .@"struct" and @typeInfo(@TypeOf(h)).@"struct".is_tuple;
+                if (is_tuple) {
+                    try extra_headers_list.append(allocator, .{ .name = h[0], .value = h[1] });
+                } else {
+                    try extra_headers_list.append(allocator, .{ .name = h.name, .value = h.value });
+                }
             }
         }
 
@@ -83,7 +88,12 @@ pub const Session = struct {
         var extra_headers_list = std.ArrayList(std.http.Header).empty;
         if (@hasField(@TypeOf(options), "headers")) {
             inline for (options.headers) |h| {
-                try extra_headers_list.append(allocator, .{ .name = h.name, .value = h.value });
+                const is_tuple = @typeInfo(@TypeOf(h)) == .@"struct" and @typeInfo(@TypeOf(h)).@"struct".is_tuple;
+                if (is_tuple) {
+                    try extra_headers_list.append(allocator, .{ .name = h[0], .value = h[1] });
+                } else {
+                    try extra_headers_list.append(allocator, .{ .name = h.name, .value = h.value });
+                }
             }
         }
 
