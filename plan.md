@@ -62,6 +62,7 @@ Inspired by `httpx` and `fetch`, the `Response` object provides a clean, propert
 | `res.ok` | A boolean indicating if the status is in the 200-299 range. |
 | `res.text()` | Returns the full response body as a `[]const u8` string. |
 | `res.json(T)` | Parses the body into type `T`. |
+| `res.json(std.json.Value)` | Parses the body into a generic, dynamically introspectable JSON tree. |
 | `res.headers.get("Content-Type")` | Retrieves a specific header value. |
 | `res.raiseForStatus()` | Returns an error if `res.ok` is false. |
 
