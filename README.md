@@ -56,7 +56,7 @@ try res.raiseForStatus();
 Add `gil` to your `build.zig.zon`:
 
 ```sh
-zig fetch --save https://github.com/ivanleomk/gil/archive/refs/tags/v0.1.0.tar.gz
+zig fetch --save https://github.com/ivanleomk/gil/archive/refs/tags/v0.1.1.tar.gz
 ```
 
 Then add it to your `build.zig`:
