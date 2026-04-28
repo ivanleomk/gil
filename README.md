@@ -11,12 +11,52 @@
 - **Seamless JSON Handling**: Pass any Zig struct directly as a JSON payload, and decode responses into specific structs or dynamic `std.json.Value` types.
 - **Automatic Decompression**: Transparent support for `gzip`, `deflate`, and `zstd` out of the box.
 
+## Why `gil`? (Zig vs Gil)
+
+Here is a comparison of making a simple JSON POST request.
+
+**With Standard Zig (`std.http.Client`):**
+```zig
+var client = std.http.Client{ .allocator = allocator };
+defer client.deinit();
+
+const uri = try std.Uri.parse("https://httpbin.org/post");
+var buf: [4096]u8 = undefined;
+var req = try client.open(.POST, uri, .{ .server_header_buffer = &buf });
+defer req.deinit();
+
+req.transfer_encoding = .chunked;
+try req.send();
+
+// Serialize JSON manually to the request writer
+try std.json.stringify(.{ .hello = "world" }, .{}, req.writer());
+try req.finish();
+try req.wait();
+
+// Checking status
+if (req.response.status != .ok) return error.RequestFailed;
+
+// Reading body requires a separate allocator or bounded buffer
+const body = try req.reader().readAllAlloc(allocator, 1024 * 1024);
+defer allocator.free(body);
+```
+
+**With `gil`:**
+```zig
+const res = try gil.post("https://httpbin.org/post", .{
+    .json = .{ .hello = "world" }
+});
+try res.raiseForStatus();
+
+// res.body is automatically fully buffered, decompressed, and available!
+```
+
 ## Installation
 
 Add `gil` to your `build.zig.zon`:
 
 ```sh
-zig fetch --save https://github.com/USER/gil/archive/main.tar.gz
+zig fetch --save https://github.com/ivanleomk/gil/archive/refs/tags/v0.1.0.tar.gz
 ```
 
 Then add it to your `build.zig`:
